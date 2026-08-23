@@ -12,7 +12,7 @@ import ProtectedRoute from "./components/Common/ProtectedRoute.jsx";
 
 import Dashboard from "./Pages/Dashboard/dashboard.jsx";
 
-import POS from "./Pages/POS/pos.jsx";
+import POS from "./Pages/Sell/Sell.jsx";
 
 import Products from "./Pages/products/Products.jsx";
 
