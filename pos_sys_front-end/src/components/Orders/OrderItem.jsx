@@ -5,7 +5,14 @@ import { formatCurrency } from "../../Utils/currency.js";
 export default function OrderItem({ item, onIncrease, onDecrease, onRemove }) {
   return (
     <article className="order-item">
-      <img src={item.image} alt={item.name} />
+      <img
+        alt={item.name}
+        src={
+          item.image
+            ? `/pos-assets/${item.image}`
+            : "/pos-assets/iced-latte.png"
+        }
+      />
 
       <div>
         <div className="order-item-top">

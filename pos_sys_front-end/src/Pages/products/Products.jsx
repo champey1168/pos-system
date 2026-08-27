@@ -49,7 +49,15 @@ export default function Products() {
         key: "image",
         header: "Image",
         render: (product) => (
-          <img className="table-image" src={product.image} alt={product.name} />
+          <img
+            className="table-image"
+            alt={product.name}
+            src={
+              product.image
+                ? `/pos-assets/${product.image}`
+                : "/pos-assets/iced-latte.png"
+            }
+          />
         ),
       },
       { key: "name", header: "Name" },
@@ -104,14 +112,16 @@ export default function Products() {
     [canManage],
   );
 
-  const confirmDelete = () => {
-    productService.remove(deleteProduct.id);
-
-    setDeleteProduct(null);
-
-    refresh();
-
-    notify("Product deleted.");
+  const confirmDelete = async () => {
+    try {
+      await productService.remove(deleteProduct.id);
+      await refresh();
+      notify("Product deleted.");
+    } catch (err) {
+      notify(err.message || "Failed to delete product.", "error");
+    } finally {
+      setDeleteProduct(null);
+    }
   };
   return (
     <section className="stack">

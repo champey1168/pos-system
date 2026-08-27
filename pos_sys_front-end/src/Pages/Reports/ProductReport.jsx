@@ -4,10 +4,12 @@ import { formatCurrency } from "../../Utils/currency.js";
 
 import Table from "../../components/Common/Table.jsx";
 
-import { orderService } from "../../services/orderService.js";
+import useOrders from "../../hooks/useOrders.js";
 
 export default function ProductReport() {
-  const rows = getProductSales(orderService.getAll());
+  const { orders } = useOrders();
+
+  const rows = getProductSales(orders);
 
   const columns = [
     { key: "product", header: "Product" },

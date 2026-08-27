@@ -19,7 +19,14 @@ export default function ProductCard({ product, onSelect }) {
           {lowStock ? "Low stock" : `${product.stock} in stock`}
         </span>
 
-        <img src={product.image} alt={product.name} />
+        <img
+          src={
+            product.image
+              ? `/pos-assets/${product.image}`
+              : "/pos-assets/iced-latte.png"
+          }
+          alt={product.name}
+        />
 
         <strong>{product.name}</strong>
       </button>

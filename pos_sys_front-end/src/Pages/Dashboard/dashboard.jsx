@@ -6,9 +6,9 @@ import { getDashboardStats, getProductSales } from "../../Utils/analytics.js";
 
 import { formatCurrency } from "../../Utils/currency.js";
 
-import { orderService } from "../../services/orderService.js";
+import useOrders from "../../hooks/useOrders.js";
 
-import { productService } from "../../services/productService.js";
+import useProducts from "../../hooks/useProducts.js";
 
 function Stat({ label, value, icon: Icon }) {
   return (
@@ -25,9 +25,9 @@ function Stat({ label, value, icon: Icon }) {
 }
 
 export default function Dashboard() {
-  const orders = orderService.getAll();
+  const { orders } = useOrders();
 
-  const products = productService.getAll();
+  const { products } = useProducts();
 
   const stats = getDashboardStats(orders, products);
 

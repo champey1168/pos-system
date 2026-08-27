@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 import OrderTable from "../../components/Order/OrderTable.jsx";
 
@@ -11,12 +11,29 @@ export default function Orders() {
 
   const { notify } = useToast();
 
-  const changeStatus = (id, status) => {
-    orderService.updateStatus(id, status);
+  useEffect(() => {
+    let cancelled = false;
 
-    setOrders(orderService.getAll());
+    (async () => {
+      await orderService.refresh();
+      if (!cancelled) {
+        setOrders(orderService.getAll());
+      }
+    })();
 
-    notify(`Order status changed to ${status}.`);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const changeStatus = async (id, status) => {
+    try {
+      await orderService.updateStatus(id, status);
+      setOrders(orderService.getAll());
+      notify(`Order status changed to ${status}.`);
+    } catch (err) {
+      notify(err.message || "Failed to update status.", "error");
+    }
   };
 
   return (

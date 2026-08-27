@@ -16,8 +16,6 @@ import { useAuth } from "../../hooks/useAuth.js";
 
 import { orderService } from "../../services/orderService.js";
 
-import { productService } from "../../services/productService.js";
-
 import { printInvoice } from "../../Utils/invoice.js";
 
 import { useToast } from "../../hooks/useToast.js";
@@ -29,10 +27,8 @@ export default function POS() {
 
   const { currentUser } = useAuth();
 
-  const { products, filteredProducts, category, setCategory } = useProducts(
-    "",
-    "All",
-  );
+  const { products, filteredProducts, category, setCategory, refresh } =
+    useProducts("", "All");
 
   const activeCategories = useMemo(() => {
     const cats = new Set(products.map((p) => p.category));
@@ -41,10 +37,12 @@ export default function POS() {
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  const [checkingOut, setCheckingOut] = useState(false);
+
   const { notify } = useToast();
 
-  const completePayment = () => {
-    const order = orderService.create({
+  const completePayment = async () => {
+    const order = {
       items: cart.items,
       subtotal: cart.subtotal,
       discount: cart.discountAmount,
@@ -53,25 +51,24 @@ export default function POS() {
       amountReceived: cart.total,
       change: 0,
       status: "Completed",
-    });
+    };
 
-    const products = productService.getAll().map((product) => {
-      const sold = cart.items
-        .filter((item) => item.productId === product.id)
-        .reduce((sum, item) => sum + item.quantity, 0);
+    setCheckingOut(true);
 
-      return sold
-        ? { ...product, stock: Math.max(product.stock - sold, 0) }
-        : product;
-    });
+    try {
+      const created = await orderService.create(order);
+      await refresh();
 
-    productService.replaceAll(products);
+      cart.clearCart();
 
-    cart.clearCart();
+      printInvoice(created, currentUser?.name);
 
-    printInvoice(order, currentUser?.name);
-
-    notify(`Payment completed. ${order.id} created.`);
+      notify(`Payment completed. ${created.id} created.`);
+    } catch (err) {
+      notify(err.message || "Payment failed.", "error");
+    } finally {
+      setCheckingOut(false);
+    }
   };
 
   return (
@@ -89,7 +86,7 @@ export default function POS() {
         />
       </section>
 
-      <CurrentOrder cart={cart} onCheckout={completePayment} />
+      <CurrentOrder cart={cart} onCheckout={completePayment} checkingOut={checkingOut} />
 
       <ProductModal
         product={selectedProduct}

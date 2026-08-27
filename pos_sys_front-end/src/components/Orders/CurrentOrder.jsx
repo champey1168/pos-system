@@ -4,7 +4,7 @@ import Button from "../Common/Button.jsx";
 import OrderItem from "./OrderItem.jsx";
 import OrderSummary from "./OrderSummary.jsx";
 
-export default function CurrentOrder({ cart, onCheckout }) {
+export default function CurrentOrder({ cart, onCheckout, checkingOut = false }) {
   return (
     <aside className="current-order">
       <header>
@@ -39,10 +39,10 @@ export default function CurrentOrder({ cart, onCheckout }) {
         <Button
           icon={ShoppingCart}
           size="lg"
-          disabled={!cart.items.length}
+          disabled={!cart.items.length || checkingOut}
           onClick={onCheckout}
         >
-          Checkout
+          {checkingOut ? "Processing..." : "Checkout"}
         </Button>
       </div>
     </aside>

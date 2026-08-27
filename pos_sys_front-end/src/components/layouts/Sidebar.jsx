@@ -13,7 +13,7 @@ import { useAuth } from "../../hooks/useAuth.js";
 
 import coffeeImage from "../../assets/Logo.png";
 
-import { defaultSettings } from "../../services/settingsService.js";
+import { settingsService } from "../../services/settingsService.js";
 
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: Home },
@@ -33,7 +33,7 @@ export default function Sidebar({ open, onClose }) {
             <img src={coffeeImage} alt="logo" />
           </span>
           <span>
-            <strong>{defaultSettings.storeName}</strong>
+            <strong>{settingsService.get().storeName}</strong>
           </span>
         </NavLink>
 

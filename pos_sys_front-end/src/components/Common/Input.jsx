@@ -4,7 +4,7 @@
     <label className={`field ${className}`} htmlFor={inputId}>
       {label ? <span>{label}</span> : null}
 
-      <input id={inputId} className={error ? "input has-error" : "input"} />
+      <input id={inputId} className={error ? "input has-error" : "input"} {...props} />
 
       {error ? <small className="field-error">{error}</small> : null}
     </label>

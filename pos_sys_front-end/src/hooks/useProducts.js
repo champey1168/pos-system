@@ -1,4 +1,4 @@
-﻿import { useCallback, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { productService } from "../services/productService.js";
 
@@ -12,7 +12,15 @@ export default function useProducts(
 
   const [category, setCategory] = useState(initialCategory);
 
-  const refresh = useCallback(() => setProducts(productService.getAll()), []);
+  const refresh = useCallback(async () => {
+    const data = await productService.refresh();
+    setProducts(data);
+    return data;
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();

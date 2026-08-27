@@ -42,7 +42,14 @@ function ProductModalContent({ product, onClose, onAdd }) {
       }
     >
       <div className="product-modal-head">
-        <img src={product.image} alt={product.name} />
+        <img
+          src={
+            product.image
+              ? `/pos-assets/${product.image}`
+              : "/pos-assets/iced-latte.png"
+          }
+          alt={product.name}
+        />
         <strong>{formatCurrency(price)}</strong>
       </div>
 

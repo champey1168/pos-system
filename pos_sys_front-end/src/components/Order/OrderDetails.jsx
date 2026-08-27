@@ -43,12 +43,10 @@ export default function OrderDetails({ order, onStatusChange }) {
         <h2>Products</h2>
         <div className="receipt-lines">
           {order.items.map((item) => (
-            <div key={item.key}>
+            <div key={item.id ?? item.product_id ?? item.name}>
               <span>
                 {item.name} x{item.quantity}
-                <small>
-                  {item.size} / Sugar {item.sugar}%
-                </small>
+                <small>{item.remarks ? item.remarks : null}</small>
               </span>
               <strong>{formatCurrency(item.price * item.quantity)}</strong>
             </div>

@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
@@ -25,10 +25,29 @@ export default function OrderDetailsPage() {
 
   const { notify } = useToast();
 
-  const changeStatus = (status) => {
-    orderService.updateStatus(id, status);
-    setOrder(orderService.getById(id));
-    notify(`Order status changed to ${status}.`);
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      await orderService.refresh();
+      if (!cancelled) {
+        setOrder(orderService.getById(id));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const changeStatus = async (status) => {
+    try {
+      await orderService.updateStatus(id, status);
+      setOrder(orderService.getById(id));
+      notify(`Order status changed to ${status}.`);
+    } catch (err) {
+      notify(err.message || "Failed to update status.", "error");
+    }
   };
 
   return (

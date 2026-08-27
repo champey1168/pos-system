@@ -1,81 +1,81 @@
 ﻿import { defaultProducts } from "../data/products.js";
 
-import { ensureStorage, readStorage, writeStorage } from "../Utils/storage.js";
+import { api } from "./api.js";
 
-const KEY = "coffee_pos_products";
+let cache = null;
+
+function snapshot() {
+  return cache || [];
+}
 
 export const productService = {
   getAll() {
-    return ensureStorage(KEY, defaultProducts);
+    return snapshot();
   },
 
   getById(id) {
-    return this.getAll().find((product) => product.id === id);
+    return snapshot().find((product) => `${product.id}` === `${id}`);
   },
 
-  save(product) {
-    const products = this.getAll();
+  async refresh() {
+    try {
+      const data = await api.get("/products?onlyActive=1");
+      cache = data;
+    } catch {
+      if (cache === null) {
+        cache = defaultProducts;
+      }
+    }
+    return snapshot();
+  },
 
-    const saved = {
+  async save(product) {
+    const created = await api.post("/products", {
       ...product,
-      id: product.id || `p-${Date.now()}`,
-      price: Number(product.price),
-      cost: Number(product.cost),
-      stock: Number(product.stock),
-    };
-
-    writeStorage(KEY, [saved, ...products]);
-
-    return saved;
+      customizable: Boolean(product.customizable),
+    });
+    cache = [created, ...snapshot()];
+    return created;
   },
 
-  update(id, updates) {
-    const updated = {
+  async update(id, updates) {
+    const updated = await api.put(`/products/${id}`, {
       ...updates,
-      id,
-      price: Number(updates.price),
-      cost: Number(updates.cost),
-      stock: Number(updates.stock),
-    };
-
-    writeStorage(
-      KEY,
-      this.getAll().map((product) => (product.id === id ? updated : product)),
-    );
+      customizable: Boolean(updates.customizable),
+    });
+    cache = snapshot().map((p) => (`${p.id}` === `${id}` ? updated : p));
     return updated;
   },
 
-  remove(id) {
-    writeStorage(
-      KEY,
-      this.getAll().filter((product) => product.id !== id),
-    );
+  async remove(id) {
+    await api.delete(`/products/${id}`);
+    cache = snapshot().filter((p) => `${p.id}` !== `${id}`);
   },
 
   search(query = "", category = "All") {
     const normalized = query.trim().toLowerCase();
-    return this.getAll().filter((product) => {
+    return snapshot().filter((product) => {
       const matchesQuery = [product.name, product.category]
         .join(" ")
         .toLowerCase()
         .includes(normalized);
-
       const matchesCategory =
         category === "All" || product.category === category;
-
       return matchesQuery && matchesCategory && product.status !== "Deleted";
     });
   },
 
-  replaceAll(products) {
-    return writeStorage(KEY, products);
+  async replaceAll(products) {
+    cache = products;
+    return snapshot();
   },
 
-  reset() {
-    return writeStorage(KEY, defaultProducts);
+  async reset() {
+    cache = defaultProducts;
+    return snapshot();
   },
 
   raw() {
-    return readStorage(KEY, []);
+    return snapshot();
   },
 };

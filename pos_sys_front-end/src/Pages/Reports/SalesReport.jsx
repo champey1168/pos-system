@@ -6,14 +6,16 @@ import { formatCurrency } from "../../Utils/currency.js";
 
 import Table from "../../components/Common/Table.jsx";
 
-import { orderService } from "../../services/orderService.js";
+import useOrders from "../../hooks/useOrders.js";
 
 export default function SalesReport() {
   const [range, setRange] = useState("month");
 
+  const { orders: allOrders } = useOrders();
+
   const orders = useMemo(
-    () => getSalesForRange(orderService.getAll(), range),
-    [range],
+    () => getSalesForRange(allOrders, range),
+    [allOrders, range],
   );
 
   const revenue = orders.reduce((sum, order) => sum + order.total, 0);
