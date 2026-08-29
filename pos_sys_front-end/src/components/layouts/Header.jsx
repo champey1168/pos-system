@@ -2,8 +2,12 @@
 
 import { useAuth } from "../../hooks/useAuth.js";
 
+import { useSearch } from "../../context/searchContext.js";
+
 export default function Header({ onMenuClick }) {
   const { currentUser } = useAuth();
+
+  const { query, setQuery } = useSearch();
 
   return (
     <header className="app-header">
@@ -23,7 +27,13 @@ export default function Header({ onMenuClick }) {
 
       <div className="header-search">
         <Search size={18} />
-        <input type="text" placeholder="Search..." aria-label="Search" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search..."
+          aria-label="Search"
+        />
       </div>
 
       <div className="header-actions">

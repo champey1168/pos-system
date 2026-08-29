@@ -29,7 +29,8 @@ import { productService } from "../../services/productService.js";
 import { categories } from "../../data/category.js";
 
 export default function Products() {
-  const { filteredProducts, category, setCategory, refresh } = useProducts();
+  const { filteredProducts, category, setCategory, refresh } =
+    useProducts("", "All", true);
 
   const [viewProduct, setViewProduct] = useState(null);
 

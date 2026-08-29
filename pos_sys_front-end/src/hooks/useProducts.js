@@ -2,13 +2,22 @@
 
 import { productService } from "../services/productService.js";
 
+import { useSearch } from "../context/searchContext.js";
+
 export default function useProducts(
   initialQuery = "",
   initialCategory = "All",
+  external = false,
 ) {
   const [products, setProducts] = useState(() => productService.getAll());
 
-  const [query, setQuery] = useState(initialQuery);
+  const { query: globalQuery, setQuery: setGlobalQuery } = useSearch();
+
+  const [localQuery, setLocalQuery] = useState(initialQuery);
+
+  const query = external ? globalQuery : localQuery;
+
+  const setQuery = external ? setGlobalQuery : setLocalQuery;
 
   const [category, setCategory] = useState(initialCategory);
 

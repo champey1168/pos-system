@@ -1,17 +1,15 @@
 import { useState } from "react";
-// 1. បន្ថែម Link នៅក្នុង import react-router-dom
-import { useNavigate, Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Common/Button.jsx";
 import Input from "../../components/Common/Input.jsx";
-import { useAuth } from "../../hooks/useAuth.js";
+import { authService } from "../../services/authService.js"; // ហៅ authService ដោយផ្ទាល់
 import { useToast } from "../../hooks/useToast.js";
 
-export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+export default function Register() {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
   const { notify } = useToast();
   const navigate = useNavigate();
 
@@ -27,11 +25,16 @@ export default function Login() {
     setError("");
 
     try {
-      await login(form);
-      notify("Signed in successfully.");
-      navigate("/dashboard");
+      // ផ្ញើ Data { name, email, password } ទៅ Backend
+      await authService.register(form);
+      
+      if (notify) notify("Registered successfully!");
+      
+      // ចុះឈ្មោះជោគជ័យ នាំទៅទំព័រ Login ឬ Dashboard
+      navigate("/login");
     } catch (err) {
-      setError(err.message || "Invalid email or password.");
+      console.error("Register Error:", err);
+      setError(err.message || "Registration failed. Check your input.");
     } finally {
       setLoading(false);
     }
@@ -42,11 +45,20 @@ export default function Login() {
       <form style={styles.card} onSubmit={handleSubmit} noValidate>
         <div style={styles.header}>
           <div style={styles.logoBadge}>☕</div>
-          <h1 style={styles.title}>Sign in</h1>
+          <h1 style={styles.title}>Sign up</h1>
           <p style={styles.subtitle}>Coffee POS System</p>
         </div>
 
         <div style={styles.formBody}>
+          <Input
+            label="Full Name"
+            type="text"
+            name="name"
+            placeholder="John Doe"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
           <Input
             label="Email"
             type="email"
@@ -55,6 +67,7 @@ export default function Login() {
             value={form.email}
             onChange={handleChange}
             autoComplete="email"
+            required
           />
           <Input
             label="Password"
@@ -63,19 +76,21 @@ export default function Login() {
             placeholder="••••••••"
             value={form.password}
             onChange={handleChange}
-            autoComplete="current-password"
+            autoComplete="new-password"
+            required
           />
+          
           {error && <p style={styles.error}>{error}</p>}
+          
           <Button type="submit" style={styles.submitBtn} disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Registering..." : "Sign Up"}
           </Button>
 
-          {/* 2. កែសម្រួល Comment និងបន្ថែម Link Sign Up */}
           <div style={{ marginTop: "15px", textAlign: "center", fontSize: "14px" }}>
             <p style={{ margin: 0, color: "#666" }}>
-              Don't have an account?{" "}
-              <Link to="/register" style={{ color: "#15803d", fontWeight: "600", textDecoration: "none" }}>
-                Sign Up
+              Already have an account?{" "}
+              <Link to="/login" style={{ color: "#15803d", fontWeight: "600", textDecoration: "none" }}>
+                Login
               </Link>
             </p>
           </div>
